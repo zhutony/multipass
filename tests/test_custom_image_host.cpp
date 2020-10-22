@@ -97,20 +97,13 @@ TEST_F(CustomImageHost, returns_expected_data_for_core18)
     EXPECT_FALSE(info->version.isEmpty());
 }
 
-TEST_F(CustomImageHost, returns_expected_data_for_snapcraft_core)
+TEST_F(CustomImageHost, returns_empty_for_snapcraft_core)
 {
     mp::CustomVMImageHost host{&url_downloader, default_ttl, test_path};
 
     auto info = host.info_for(make_query("core", "snapcraft"));
 
-    ASSERT_TRUE(info);
-    EXPECT_THAT(info->image_location,
-                Eq(QUrl::fromLocalFile(test_path + "ubuntu-16.04-minimal-cloudimg-amd64-disk1.img").toString()));
-    EXPECT_THAT(info->id, Eq(QString("a6e6db185f53763d9d6607b186f1e6ae2dc02f8da8ea25e58d92c0c0c6dc4e48")));
-    EXPECT_THAT(info->release, Eq(QString("snapcraft-core16")));
-    EXPECT_THAT(info->release_title, Eq(QString("Snapcraft builder for Core 16")));
-    EXPECT_TRUE(info->supported);
-    EXPECT_FALSE(info->version.isEmpty());
+    EXPECT_FALSE(info);
 }
 
 TEST_F(CustomImageHost, returns_expected_data_for_snapcraft_core18)
@@ -215,7 +208,7 @@ TEST_F(CustomImageHost, handles_and_recovers_from_initial_network_failure)
     url_downloader.mischiefs = 1000;
     mp::CustomVMImageHost host{&url_downloader, ttl, test_path};
 
-    const auto query = make_query("core", "snapcraft");
+    const auto query = make_query("core16", "snapcraft");
     EXPECT_THROW(host.info_for(query), std::runtime_error);
 
     url_downloader.mischiefs = 0;
@@ -227,7 +220,7 @@ TEST_F(CustomImageHost, handles_and_recovers_from_later_network_failure)
     const auto ttl = 0s; // to ensure updates are always retried
     mp::CustomVMImageHost host{&url_downloader, ttl, test_path};
 
-    const auto query = make_query("core", "snapcraft");
+    const auto query = make_query("core16", "snapcraft");
     EXPECT_TRUE(host.info_for(query));
 
     url_downloader.mischiefs = 1000;
